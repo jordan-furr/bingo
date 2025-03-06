@@ -5,7 +5,7 @@ export default async function Page() {
     return (
         <main>
             <div>
-                <h2>You've got this</h2>
+                <h2>Youve got this</h2>
                 <h3>My favorite colors:</h3>
                 <ul>
                     {colors.map((color) => (
