@@ -8,7 +8,7 @@ import { type User } from '@supabase/supabase-js'
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
-  const [fullname, setFullname] = useState<string | null>(null)
+  const [firstname, setFirstname] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
   const [website, setWebsite] = useState<string | null>(null)
   const [avatar_url, setAvatarUrl] = useState<string | null>(null)
@@ -19,7 +19,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`full_name, username, website, avatar_url`)
+        .select(`first_name, username, website, avatar_url`)
         .eq('id', user?.id)
         .single()
 
@@ -29,7 +29,7 @@ export default function AccountForm({ user }: { user: User | null }) {
       }
 
       if (data) {
-        setFullname(data.full_name)
+        setFirstname(data.first_name)
         setUsername(data.username)
         setWebsite(data.website)
         setAvatarUrl(data.avatar_url)
@@ -47,12 +47,12 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   async function updateProfile({
     username,
-    fullname,
+    firstname,
     website,
     avatar_url,
   }: {
     username: string | null
-    fullname: string | null
+    firstname: string | null
     website: string | null
     avatar_url: string | null
   }) {
@@ -61,7 +61,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       const { error } = await supabase.from('profiles').upsert({
         id: user?.id as string,
-        full_name: fullname,
+        first_name: firstname,
         username,
         website,
         avatar_url,
@@ -79,19 +79,17 @@ export default function AccountForm({ user }: { user: User | null }) {
   return (
     <div className="form-widget">
 
-      {/* ... */}
-
       <div>
         <label htmlFor="email">Email</label>
         <input id="email" type="text" value={user?.email} disabled />
       </div>
       <div>
-        <label htmlFor="fullName">Full Name</label>
+        <label htmlFor="firstName">First Name</label>
         <input
-          id="fullName"
+          id="firstName"
           type="text"
-          value={fullname || ''}
-          onChange={(e) => setFullname(e.target.value)}
+          value={firstname || ''}
+          onChange={(e) => setFirstname(e.target.value)}
         />
       </div>
       <div>
@@ -116,7 +114,7 @@ export default function AccountForm({ user }: { user: User | null }) {
       <div>
         <button
           className="button primary block"
-          onClick={() => updateProfile({ fullname, username, website, avatar_url })}
+          onClick={() => updateProfile({ firstname, username, website, avatar_url })}
           disabled={loading}
         >
           {loading ? 'Loading ...' : 'Update'}
