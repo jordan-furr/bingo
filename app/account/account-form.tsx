@@ -10,8 +10,6 @@ export default function AccountForm({ user }: { user: User | null }) {
   const [loading, setLoading] = useState(true)
   const [firstname, setFirstname] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
-  const [website, setWebsite] = useState<string | null>(null)
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null)
 
   const getProfile = useCallback(async () => {
     try {
@@ -19,9 +17,11 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`first_name, username, website, avatar_url`)
+        .select(`first_name, username`)
         .eq('id', user?.id)
-        .single()
+        .maybeSingle()
+
+      console.log("Response:", { data, error })
 
       if (error && status !== 406) {
         console.log(error)
@@ -31,8 +31,6 @@ export default function AccountForm({ user }: { user: User | null }) {
       if (data) {
         setFirstname(data.first_name)
         setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
       }
     } catch (error) {
       alert(`Error updating the data!:  ${error instanceof Error ? error.message : String(error)}`)
@@ -46,15 +44,10 @@ export default function AccountForm({ user }: { user: User | null }) {
   }, [user, getProfile])
 
   async function updateProfile({
-    username,
-    firstname,
-    website,
-    avatar_url,
+    username
   }: {
     username: string | null
     firstname: string | null
-    website: string | null
-    avatar_url: string | null
   }) {
     try {
       setLoading(true)
@@ -63,8 +56,6 @@ export default function AccountForm({ user }: { user: User | null }) {
         id: user?.id as string,
         first_name: firstname,
         username,
-        website,
-        avatar_url,
         updated_at: new Date().toISOString(),
       })
       if (error) throw error
@@ -78,6 +69,8 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   return (
     <div className="form-widget">
+
+      {/* ... */}
 
       <div>
         <label htmlFor="email">Email</label>
@@ -102,19 +95,9 @@ export default function AccountForm({ user }: { user: User | null }) {
         />
       </div>
       <div>
-        <label htmlFor="website">Website</label>
-        <input
-          id="website"
-          type="url"
-          value={website || ''}
-          onChange={(e) => setWebsite(e.target.value)}
-        />
-      </div>
-
-      <div>
         <button
           className="button primary block"
-          onClick={() => updateProfile({ firstname, username, website, avatar_url })}
+          onClick={() => updateProfile({ firstname, username })}
           disabled={loading}
         >
           {loading ? 'Loading ...' : 'Update'}
